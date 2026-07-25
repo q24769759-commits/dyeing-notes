@@ -32,36 +32,7 @@ jobs:
         run: npm ci
 
       - name: Install Quartz plugins
-        run: |
-          python3 - << 'EOF'
-          import json, subprocess, os
-
-          with open('quartz.lock.json') as f:
-              lock = json.load(f)
-
-          os.makedirs('.quartz/plugins', exist_ok=True)
-
-          for name, info in lock['plugins'].items():
-              dest = f'.quartz/plugins/{name}'
-              if os.path.exists(dest):
-                  print(f'Skipping {name}')
-                  continue
-              url = info['resolved']
-              print(f'Cloning {name}...')
-              result = subprocess.run(
-                  ['git', 'clone', '--depth=1', url, dest],
-                  capture_output=True, text=True
-              )
-              if result.returncode != 0:
-                  print(f'Warning: {name}: {result.stderr}')
-
-          print('Done!')
-          EOF
-
-      - name: Create plugins index
-        run: |
-          echo 'export const CustomOgImagesEmitterName = "CustomOgImages";' > .quartz/plugins/index.ts
-          echo 'export type ContentDetails = { slug: string; filePath: string; title: string; links: string[]; tags: string[]; content: string; richContent?: string; date?: Date; description?: string; };' >> .quartz/plugins/index.ts
+        run: npx quartz plugin install
 
       - name: Build Quartz
         run: npx quartz build
